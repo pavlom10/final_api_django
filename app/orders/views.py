@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from products.models import ProductInfo
 from products.serializers import ProductInfoSerializer
 from .models import Order, OrderItem, OrderStatusChoices
-from .serializers import CartSerializer
+from .serializers import CartSerializer, OrderSerializer
 # from .filters import ProductInfoFilter
 
 

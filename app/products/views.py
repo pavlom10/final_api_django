@@ -1,11 +1,14 @@
 from rest_framework.views import APIView
 from rest_framework import permissions, status
 from rest_framework.response import Response
+from django.db.models import Q, Sum, F
 from requests import get
 from distutils.util import strtobool
 from shops.permissions import IsOwnerOrAdmin, IsShopOrAdmin
 from shops.models import Shop
 from shops.serializers import ShopSerializer
+from orders.models import Order
+from orders.serializers import OrderSerializer
 from yaml import load as load_yaml, Loader
 from .models import Category, Product, ProductParameter, ProductInfo, Parameter
 from .serializers import PartnerUpdateSerializer
@@ -78,3 +81,15 @@ class PartnerState(APIView):
 
         Shop.objects.filter(user_id=request.user.id).update(state=strtobool(state))
         return Response(status=status.HTTP_200_OK)
+
+
+class PartnerOrders(APIView):
+    def get(self, request, *args, **kwargs):
+        order = Order.objects.filter(
+            ordered_items__product_info__shop__user_id=request.user.id).exclude(state='basket').prefetch_related(
+            'ordered_items__product_info__product__category',
+            'ordered_items__product_info__product_parameters__parameter').select_related('contact').annotate(
+            total_sum=Sum(F('ordered_items__quantity') * F('ordered_items__product_info__price'))).distinct()
+
+        serializer = OrderSerializer(order, many=True)
+        return Response(serializer.data)
