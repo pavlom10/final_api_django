@@ -3,8 +3,6 @@ from users.models import User
 from products.models import ProductInfo
 from django.utils.translation import gettext_lazy as _
 
-ORDER_ = verbose_name = _('order')
-
 
 class OrderStatusChoices(models.TextChoices):
     CART = 'CART', _('cart')
