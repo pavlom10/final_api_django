@@ -29,9 +29,9 @@ urlpatterns = [
     path('api/v1/register', RegisterView.as_view(), name='auth_register'),
     path('api/v1/', include(router.urls)),
     path('api/v1/partner/update', PartnerUpdate.as_view(), name='partner_update'),
+    path('api/v1/partner/orders', PartnerOrders.as_view(), name='partner_orders'),
     path('api/v1/products', ProductInfoView.as_view(), name='products'),
     path('api/v1/cart', CartView.as_view(), name='cart'),
-    path('api/v1/partner/orders', PartnerOrders.as_view(), name='partner_orders'),
     path('api/v1/order', OrderView.as_view(), name='partner_orders'),
     path('admin', admin.site.urls),
 ]
