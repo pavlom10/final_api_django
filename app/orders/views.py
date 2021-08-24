@@ -62,7 +62,7 @@ class ContactViewSet(viewsets.ModelViewSet):
 class OrderView(APIView):
     def get(self, request, *args, **kwargs):
         order = Order.objects.filter(
-            user_id=request.user.id).exclude(state='basket').prefetch_related(
+            user_id=request.user.id).exclude(state=OrderStatusChoices.CART).prefetch_related(
             'ordered_items__product_info__product__category',
             'ordered_items__product_info__product_parameters__parameter').select_related('contact').annotate(
             total_sum=Sum(F('ordered_items__quantity') * F('ordered_items__product_info__price'))).distinct()
@@ -77,7 +77,7 @@ class OrderView(APIView):
                     is_updated = Order.objects.filter(
                         user_id=request.user.id, id=request.data['id']).update(
                         contact_id=request.data['contact'],
-                        state='new')
+                        state=OrderStatusChoices.NEW)
                 except Exception as e:
                     # print e
                     return Response(status=status.HTTP_400_BAD_REQUEST)

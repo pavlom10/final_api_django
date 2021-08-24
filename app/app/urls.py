@@ -19,7 +19,7 @@ from rest_framework import routers
 from shops.views import ShopViewSet
 from users.views import RegisterView
 from products.views import PartnerUpdate, PartnerState, PartnerOrders
-from orders.views import ProductInfoView, CartView, ContactViewSet
+from orders.views import ProductInfoView, CartView, ContactViewSet, OrderView
 
 router = routers.DefaultRouter()
 router.register(r'shops', ShopViewSet, basename='shops')
@@ -32,5 +32,6 @@ urlpatterns = [
     path('api/v1/products', ProductInfoView.as_view(), name='products'),
     path('api/v1/cart', CartView.as_view(), name='cart'),
     path('api/v1/partner/orders', PartnerOrders.as_view(), name='partner_orders'),
+    path('api/v1/order', OrderView.as_view(), name='partner_orders'),
     path('admin', admin.site.urls),
 ]
