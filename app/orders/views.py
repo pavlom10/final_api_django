@@ -10,8 +10,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from products.models import ProductInfo
 from products.serializers import ProductInfoSerializer
-from .models import Order, OrderItem, OrderStatusChoices
-from .serializers import CartSerializer, OrderSerializer
+from .models import Order, OrderItem, OrderStatusChoices, Contact
+from .serializers import CartSerializer, OrderSerializer, ContactSerializer
 # from .filters import ProductInfoFilter
 
 
@@ -50,22 +50,11 @@ class CartView(APIView):
         return Response(serializer.data)
 
 
-        #
-        # # # Disallow adding to cart if available inventory is not enough
-        # # if product.available_inventory <= 0 or product.available_inventory - quantity < 0:
-        # #     print "There is no more product available"
-        # #     return Response({'status': 'fail'})
-        #
-        # existing_cart_item = OrderItem.objects.filter(cart=cart, product=product).first()
-        # # before creating a new cart item check if it is in the cart already
-        # # and if yes increase the quantity of that item
-        # if existing_cart_item:
-        #     existing_cart_item.quantity += quantity
-        #     existing_cart_item.save()
-        # else:
-        #     new_cart_item = OrderItem(cart=cart, product_info=product, quantity=quantity)
-        #     new_cart_item.save()
-        #
-        # # return the updated cart to indicate success
-        # serializer = CartSerializer(cart)
-        # return Response(serializer.data)
+class ContactViewSet(viewsets.ModelViewSet):
+    serializer_class = ContactSerializer
+
+    def get_queryset(self):
+        if self.action == 'list':
+            return Contact.objects.filter(user=self.request.user)
+        return Contact.objects.all()
+

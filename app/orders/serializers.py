@@ -13,6 +13,11 @@ class ContactSerializer(serializers.ModelSerializer):
             'user': {'write_only': True}
         }
 
+    def create(self, validated_data):
+        user = self.context['request'].user
+        validated_data['user'] = user
+        return super().create(validated_data)
+
 
 class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
