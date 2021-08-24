@@ -5,9 +5,9 @@
 #  получить корзину
 #  получить мои заказы
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.db.models import Q, Sum, F
 from products.models import ProductInfo
 from products.serializers import ProductInfoSerializer
 from .models import Order, OrderItem, OrderStatusChoices, Contact
@@ -57,4 +57,34 @@ class ContactViewSet(viewsets.ModelViewSet):
         if self.action == 'list':
             return Contact.objects.filter(user=self.request.user)
         return Contact.objects.all()
+
+
+class OrderView(APIView):
+    def get(self, request, *args, **kwargs):
+        order = Order.objects.filter(
+            user_id=request.user.id).exclude(state='basket').prefetch_related(
+            'ordered_items__product_info__product__category',
+            'ordered_items__product_info__product_parameters__parameter').select_related('contact').annotate(
+            total_sum=Sum(F('ordered_items__quantity') * F('ordered_items__product_info__price'))).distinct()
+
+        serializer = OrderSerializer(order, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        if {'id', 'contact'}.issubset(request.data):
+            if request.data['id'].isdigit():
+                try:
+                    is_updated = Order.objects.filter(
+                        user_id=request.user.id, id=request.data['id']).update(
+                        contact_id=request.data['contact'],
+                        state='new')
+                except Exception as e:
+                    # print e
+                    return Response(status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    if is_updated:
+                        # new_order.send(sender=self.__class__, user_id=request.user.id)
+                        return Response({'Status': 'Ok'})
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
