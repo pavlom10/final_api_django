@@ -12,12 +12,25 @@ from products.models import ProductInfo
 from products.serializers import ProductInfoSerializer
 from .models import Order, OrderItem, OrderStatusChoices, Contact
 from .serializers import CartSerializer, OrderSerializer, ContactSerializer
+from .permissions import IsBuyerOrAdmin
 # from .filters import ProductInfoFilter
 
 
 class ProductInfoView(APIView):
     def get(self, request, *args, **kwargs):
-        queryset = ProductInfo.objects.all().select_related(
+
+        query = Q(shop__state=True)
+        shop_id = request.query_params.get('shop_id')
+        category_id = request.query_params.get('category_id')
+
+        if shop_id:
+            query = query & Q(shop_id=shop_id)
+
+        if category_id:
+            query = query & Q(product__category_id=category_id)
+
+        queryset = ProductInfo.objects.filter(
+            query).select_related(
             'shop', 'product__category').prefetch_related(
             'product_parameters__parameter').distinct()
         serializer = ProductInfoSerializer(queryset, many=True)
@@ -26,6 +39,8 @@ class ProductInfoView(APIView):
 
 
 class CartView(APIView):
+    permission_classes = [IsBuyerOrAdmin]
+
     def post(self, request):
         cart, _ = Order.objects.get_or_create(user_id=request.user.id, state=OrderStatusChoices.CART)
 
@@ -35,8 +50,7 @@ class CartView(APIView):
             )
             quantity = int(request.data['quantity'])
         except Exception as e:
-            # print e
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response({'Status': False, 'Error': str(e)})
 
         existing_cart_item = OrderItem.objects.filter(order=cart, product_info=product).first()
         if existing_cart_item:
@@ -52,6 +66,7 @@ class CartView(APIView):
 
 class ContactViewSet(viewsets.ModelViewSet):
     serializer_class = ContactSerializer
+    permission_classes = [IsBuyerOrAdmin]
 
     def get_queryset(self):
         if self.action == 'list':
@@ -60,6 +75,8 @@ class ContactViewSet(viewsets.ModelViewSet):
 
 
 class OrderView(APIView):
+    permission_classes = [IsBuyerOrAdmin]
+
     def get(self, request, *args, **kwargs):
         order = Order.objects.filter(
             user_id=request.user.id).exclude(state=OrderStatusChoices.CART).prefetch_related(
