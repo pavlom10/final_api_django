@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import User
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
+from .signals import new_user_registered
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -42,7 +43,20 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
 
+        new_user_registered.send(sender=self.__class__, user_id=user.id)
+
         return user
+
+
+class ChangePasswordSerializer(serializers.ModelSerializer):
+    """
+    Serializer for password change endpoint.
+    """
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+    class Meta:
+        model = User
 
 
 class UserSerializer(serializers.ModelSerializer):

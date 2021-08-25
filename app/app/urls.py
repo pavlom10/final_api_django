@@ -27,6 +27,7 @@ router.register(r'user/contacts', ContactViewSet, basename='contacts')
 
 urlpatterns = [
     path('api/v1/register', RegisterView.as_view(), name='auth_register'),
+    path('api/v1/password_reset', include('django_rest_passwordreset.urls', namespace='password_reset')),
     path('api/v1/', include(router.urls)),
     path('api/v1/partner/update', PartnerUpdate.as_view(), name='partner_update'),
     path('api/v1/partner/orders', PartnerOrders.as_view(), name='partner_orders'),
