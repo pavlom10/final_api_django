@@ -1,9 +1,3 @@
-# TODO:
-#  фильтр по магазину / категории
-#  добавить продукт в корзину по id
-#  удалить продукт из корзины по id
-#  получить корзину
-#  получить мои заказы
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
