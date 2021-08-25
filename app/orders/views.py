@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django.db.models import Q, Sum, F
 from products.models import ProductInfo
 from products.serializers import ProductInfoSerializer
+from userts.signals import new_order
 from .models import Order, OrderItem, OrderStatusChoices, Contact
 from .serializers import CartSerializer, OrderSerializer, ContactSerializer
 from .permissions import IsBuyerOrAdmin
@@ -90,12 +91,10 @@ class OrderView(APIView):
                         contact_id=request.data['contact'],
                         state=OrderStatusChoices.NEW)
                 except Exception as e:
-                    # print e
-                    return Response(status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'Status': False, 'Error': str(e)})
                 else:
                     if is_updated:
-                        # new_order.send(sender=self.__class__, user_id=request.user.id)
+                        new_order.send(sender=self.__class__, user_id=request.user.id)
                         return Response({'Status': 'Ok'})
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
-
