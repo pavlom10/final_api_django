@@ -18,7 +18,7 @@ from django.urls import path, include
 from rest_framework import routers
 from shops.views import ShopViewSet
 from users.views import RegisterView
-from products.views import PartnerUpdate, PartnerState, PartnerOrders
+from products.views import PartnerUpdate, PartnerState, PartnerOrders, CategoryView
 from orders.views import ProductInfoView, CartView, ContactViewSet, OrderView
 
 router = routers.DefaultRouter()
@@ -34,5 +34,6 @@ urlpatterns = [
     path('api/v1/products', ProductInfoView.as_view(), name='products'),
     path('api/v1/cart', CartView.as_view(), name='cart'),
     path('api/v1/order', OrderView.as_view(), name='partner_orders'),
+    path('api/v1/categories', CategoryView.as_view(), name='categories'),
     path('admin', admin.site.urls),
 ]

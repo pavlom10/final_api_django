@@ -1,6 +1,8 @@
+from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework import permissions, status
 from rest_framework.response import Response
+from django.core.validators import URLValidator
 from django.db.models import Q, Sum, F
 from requests import get
 from distutils.util import strtobool
@@ -11,7 +13,7 @@ from orders.models import Order
 from orders.serializers import OrderSerializer
 from yaml import load as load_yaml, Loader
 from .models import Category, Product, ProductParameter, ProductInfo, Parameter
-from .serializers import PartnerUpdateSerializer
+from .serializers import CategorySerializer
 
 
 # from rest_framework import generics
@@ -28,14 +30,18 @@ from .serializers import PartnerUpdateSerializer
 class PartnerUpdate(APIView):
 
     permission_classes = [permissions.IsAuthenticated, IsShopOrAdmin]
-    # serializer_class = PartnerUpdateSerializer
 
     def post(self, request, *args, **kwargs):
         url = request.data.get('url')
 
         if not url:
-            # TODO: валидация и обработка ошибки
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        validate_url = URLValidator()
+        try:
+            validate_url(url)
+        except Exception as e:
+            return Response({'Status': False, 'Error': str(e)})
 
         stream = get(url).content
         data = load_yaml(stream, Loader=Loader)
@@ -93,3 +99,8 @@ class PartnerOrders(APIView):
 
         serializer = OrderSerializer(order, many=True)
         return Response(serializer.data)
+
+
+class CategoryView(ListAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
