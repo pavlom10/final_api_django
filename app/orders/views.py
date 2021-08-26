@@ -45,7 +45,7 @@ class CartView(APIView):
             )
             quantity = int(request.data['quantity'])
         except Exception as e:
-            return Response({'Status': False, 'Error': str(e)})
+            return Response({'Status': False, 'Error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         existing_cart_item = OrderItem.objects.filter(order=cart, product_info=product).first()
         if existing_cart_item:
