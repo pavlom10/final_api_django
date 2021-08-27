@@ -12,6 +12,8 @@ from .permissions import IsBuyerOrAdmin
 
 
 class ProductInfoView(APIView):
+    serializer_class = None
+
     def get(self, request, *args, **kwargs):
 
         query = Q(shop__state=True)
@@ -35,6 +37,7 @@ class ProductInfoView(APIView):
 
 class CartView(APIView):
     permission_classes = [IsBuyerOrAdmin]
+    serializer_class = CartSerializer
 
     def post(self, request):
         cart, _ = Order.objects.get_or_create(user_id=request.user.id, state=OrderStatusChoices.CART)
@@ -71,6 +74,7 @@ class ContactViewSet(viewsets.ModelViewSet):
 
 class OrderView(APIView):
     permission_classes = [IsBuyerOrAdmin]
+    serializer_class = OrderSerializer
 
     def get(self, request, *args, **kwargs):
         order = Order.objects.filter(

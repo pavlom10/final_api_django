@@ -20,6 +20,7 @@ from shops.views import ShopViewSet
 from users.views import RegisterView
 from products.views import PartnerUpdate, PartnerState, PartnerOrders, CategoryView
 from orders.views import ProductInfoView, CartView, ContactViewSet, OrderView
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 router = routers.DefaultRouter()
 router.register(r'shops', ShopViewSet, basename='shops')
@@ -37,4 +38,5 @@ urlpatterns = [
     path('api/v1/order', OrderView.as_view(), name='partner_orders'),
     path('api/v1/categories', CategoryView.as_view(), name='categories'),
     path('admin', admin.site.urls),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
 ]

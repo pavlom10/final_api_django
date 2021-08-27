@@ -13,7 +13,7 @@ from orders.models import Order
 from orders.serializers import OrderSerializer
 from yaml import load as load_yaml, Loader
 from .models import Category, Product, ProductParameter, ProductInfo, Parameter
-from .serializers import CategorySerializer
+from .serializers import CategorySerializer, ProductSerializer
 
 
 # from rest_framework import generics
@@ -28,8 +28,8 @@ from .serializers import CategorySerializer
 
 
 class PartnerUpdate(APIView):
-
     permission_classes = [permissions.IsAuthenticated, IsShopOrAdmin]
+    serializer_class = None
 
     def post(self, request, *args, **kwargs):
         url = request.data.get('url')
@@ -74,6 +74,7 @@ class PartnerUpdate(APIView):
 
 class PartnerState(APIView):
     permission_classes = [permissions.IsAuthenticated, IsShopOrAdmin]
+    serializer_class = None
 
     def get(self, request, *args, **kwargs):
         shop = request.user.shop
@@ -90,6 +91,8 @@ class PartnerState(APIView):
 
 
 class PartnerOrders(APIView):
+    serializer_class = None
+
     def get(self, request, *args, **kwargs):
         order = Order.objects.filter(
             ordered_items__product_info__shop__user_id=request.user.id).exclude(state='basket').prefetch_related(
