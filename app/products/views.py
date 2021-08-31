@@ -2,6 +2,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework import permissions, status
 from rest_framework.response import Response
+from rest_framework.throttling import UserRateThrottle
 from django.core.validators import URLValidator
 from django.db.models import Q, Sum, F
 from requests import get
@@ -16,20 +17,13 @@ from .models import Category, Product, ProductParameter, ProductInfo, Parameter
 from .serializers import CategorySerializer, ProductSerializer
 
 
-# from rest_framework import generics
-# from django.core.validators import URLValidator
-# from .serializers import ShopSerializer
-# from .models import Product
-# from django.shortcuts import render
-# from django.http import JsonResponse
-# from requests import get
-# from rest_framework.authtoken.models import Token
-# from rest_framework.generics import ListAPIView
-
-
 class PartnerUpdate(APIView):
+    """
+    An endpoint for uploading price list from url.
+    """
     permission_classes = [permissions.IsAuthenticated, IsShopOrAdmin]
     serializer_class = None
+    throttle_classes = [UserRateThrottle]
 
     def post(self, request, *args, **kwargs):
         url = request.data.get('url')
@@ -73,8 +67,12 @@ class PartnerUpdate(APIView):
 
 
 class PartnerState(APIView):
+    """
+    An endpoint for changing shop status on / off
+    """
     permission_classes = [permissions.IsAuthenticated, IsShopOrAdmin]
     serializer_class = None
+    throttle_classes = [UserRateThrottle]
 
     def get(self, request, *args, **kwargs):
         shop = request.user.shop
@@ -91,6 +89,10 @@ class PartnerState(APIView):
 
 
 class PartnerOrders(APIView):
+    """
+    An endpoint for order listing.
+    """
+
     serializer_class = None
 
     def get(self, request, *args, **kwargs):
@@ -105,5 +107,8 @@ class PartnerOrders(APIView):
 
 
 class CategoryView(ListAPIView):
+    """
+    An endpoint for managing categories.
+    """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer

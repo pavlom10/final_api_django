@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.throttling import UserRateThrottle
 from django.db.models import Q, Sum, F
 from products.models import ProductInfo
 from products.serializers import ProductInfoSerializer
@@ -12,7 +13,11 @@ from .permissions import IsBuyerOrAdmin
 
 
 class ProductInfoView(APIView):
+    """
+    An endpoint for product listing.
+    """
     serializer_class = None
+    throttle_classes = [UserRateThrottle]
 
     def get(self, request, *args, **kwargs):
 
@@ -36,8 +41,12 @@ class ProductInfoView(APIView):
 
 
 class CartView(APIView):
+    """
+    An endpoint for adding position to cart.
+    """
     permission_classes = [IsBuyerOrAdmin]
     serializer_class = CartSerializer
+    throttle_classes = [UserRateThrottle]
 
     def post(self, request):
         cart, _ = Order.objects.get_or_create(user_id=request.user.id, state=OrderStatusChoices.CART)
@@ -63,6 +72,9 @@ class CartView(APIView):
 
 
 class ContactViewSet(viewsets.ModelViewSet):
+    """
+    An endpoint for user contacts.
+    """
     serializer_class = ContactSerializer
     permission_classes = [IsBuyerOrAdmin]
 
@@ -73,6 +85,9 @@ class ContactViewSet(viewsets.ModelViewSet):
 
 
 class OrderView(APIView):
+    """
+    An endpoint for orders listing and posting.
+    """
     permission_classes = [IsBuyerOrAdmin]
     serializer_class = OrderSerializer
 

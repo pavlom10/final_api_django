@@ -1,11 +1,16 @@
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework.throttling import AnonRateThrottle
 from .models import User
 from .serializers import RegisterSerializer, ChangePasswordSerializer
 
 
 class RegisterView(generics.CreateAPIView):
+    """
+    An endpoint for user registration.
+    """
+    throttle_classes = [AnonRateThrottle]
     queryset = User.objects.all()
     permission_classes = (AllowAny, )
     serializer_class = RegisterSerializer
@@ -18,6 +23,7 @@ class ChangePasswordView(generics.UpdateAPIView):
     serializer_class = ChangePasswordSerializer
     model = User
     permission_classes = (IsAuthenticated,)
+    throttle_classes = [AnonRateThrottle]
 
     def get_object(self, queryset=None):
         obj = self.request.user
