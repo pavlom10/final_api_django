@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_rest_passwordreset',
     'drf_spectacular',
+    'djcelery_email',
 
     'users',
     'shops',
@@ -73,6 +74,8 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     # OTHER SETTINGS
 }
+
+EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

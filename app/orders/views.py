@@ -5,7 +5,7 @@ from rest_framework.throttling import UserRateThrottle
 from django.db.models import Q, Sum, F
 from products.models import ProductInfo
 from products.serializers import ProductInfoSerializer
-from users.signals import new_order
+from users.mailing import mailing_new_order
 from .models import Order, OrderItem, OrderStatusChoices, Contact
 from .serializers import CartSerializer, OrderSerializer, ContactSerializer
 from .permissions import IsBuyerOrAdmin
@@ -113,7 +113,7 @@ class OrderView(APIView):
                     return Response({'Status': False, 'Error': str(e)})
                 else:
                     if is_updated:
-                        new_order.send(sender=self.__class__, user_id=request.user.id)
+                        # mailing_new_order(user_id=request.user.id)
                         return Response({'Status': 'Ok'})
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
